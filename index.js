@@ -10,7 +10,6 @@ class App {
             }
         });
     }
-
     async init() {
         let t = `CREATE TABLE IF NOT EXISTS db(d INTEGER, s INTEGER, 
         b1 INTEGER DEFAULT 0, b2 INTEGER DEFAULT 0, b3 INTEGER DEFAULT 0, b4 INTEGER DEFAULT 0, b5 INTEGER DEFAULT 0, b6 INTEGER DEFAULT 0,b7 INTEGER DEFAULT 0,b8 INTEGER DEFAULT 0,b9 INTEGER DEFAULT 0,
@@ -25,7 +24,7 @@ class App {
         n9 TEXT DEFAULT '',r9 INTEGER DEFAULT 0,v9 NUMERIC DEFAULT 0,
         n10 TEXT DEFAULT '',r10 INTEGER DEFAULT 0,v10 NUMERIC DEFAULT 0);`;
         await this.db.run(t);
-        this.browser = await puppeteer.launch();
+        this.browser = await puppeteer.launch({headless: false});
         this.page = await this.browser.newPage();
         let u = process.env.URL;
         if (!u) {
@@ -58,6 +57,10 @@ class App {
                 process.exit();
             }
             num = row.d && row.d>0 ? row.d : undefined;
+        });
+        this.page.on('dialog', async dialog => {
+            console.log(dialog.message());
+            await dialog.dismiss();
         });
         let page = this.page;
         await page.waitFor(2000);
