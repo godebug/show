@@ -24,7 +24,7 @@ class App {
         n9 TEXT DEFAULT '',r9 INTEGER DEFAULT 0,v9 NUMERIC DEFAULT 0,
         n10 TEXT DEFAULT '',r10 INTEGER DEFAULT 0,v10 NUMERIC DEFAULT 0);`;
         await this.db.run(t);
-        this.browser = await puppeteer.launch({headless: false});
+        this.browser = await puppeteer.launch({headless: true});
         this.page = await this.browser.newPage();
         let u = process.env.URL;
         if (!u) {
