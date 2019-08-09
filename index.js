@@ -39,7 +39,26 @@ class App {
         await this.browser.close();
     };
 
+    get(i) {
+        return new Promise((resolve, reject) => {
+            this.db.get('SELECT d FROM db WHERE d=?;',i,(err, row) =>{
+                if (err) {
+                    reject(err);
+                }
+                resolve(row ? true: false);
+            });
+        });
+    }
+
     async fetch() {
+        let num;
+        this.db.get('SELECT MIN(d) as d FROM db;',(err, row) =>{
+            if (err) {
+                console.log(err.message);
+                process.exit();
+            }
+            num = row.d && row.d>0 ? row.d : undefined;
+        });
         let page = this.page;
         await page.waitFor(2000);
         let li = new RegExp('<li>', 'g');
@@ -49,12 +68,14 @@ class App {
         let tds = new RegExp('</td>', 'g');
         let tr = new RegExp('<tr>', 'g');
         let trs = new RegExp('</tr>', 'g');
-        let num = await page.$eval('.draw_serie', el => el.value);
+        num = num ? num : await page.$eval('.draw_serie', el => el.value);
         for (let i = num; i > 0; i--) {
+            if (await this.get(i)) {
+                continue;
+            }
             await page.$eval('.draw_serie', el => el.value = '');
             await page.type('.draw_serie', i.toString());
             await page.click('.check-butt');
-            await page.waitFor(300);
             let row = await page.$$eval('.pole', el => {
                 let out = [];
                 el.forEach(e => {
